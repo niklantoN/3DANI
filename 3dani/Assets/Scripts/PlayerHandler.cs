@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerHandler : MonoBehaviour
 {
-    private Vector2 _input;
+    public Vector2 input;
     private CharacterController _characterController;
     private Vector3 _direction;
     private float _velocity;
@@ -46,7 +46,7 @@ public class PlayerHandler : MonoBehaviour
 
     private void RotateCharacter()
     {
-        if (_input.sqrMagnitude == 0) return;
+        if (input.sqrMagnitude == 0) return;
         
             var targetAngle = Mathf.Atan2(_direction.x, _direction.z) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, targetAngle + _camera.eulerAngles.y, 0);
@@ -82,12 +82,12 @@ public class PlayerHandler : MonoBehaviour
     }
     public void Move(InputAction.CallbackContext context)
     {
-        _input = context.ReadValue<Vector2>();
-        if (_input.magnitude > 1)
+        input = context.ReadValue<Vector2>();
+        if (input.magnitude > 1)
         {
-            _input.Normalize();
+            input.Normalize();
         }
-        _direction = new Vector3(_input.x, 0, _input.y);
+        _direction = new Vector3(input.x, 0, input.y);
     }
 
     Vector3 ConvertToCameraSpace(Vector3 direction)

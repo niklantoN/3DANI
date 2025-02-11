@@ -30,7 +30,7 @@ public class CameraHandler : MonoBehaviour
             _camera.transform.eulerAngles.z
             );
 
-        _camera.transform.position = _target.position - transform.forward * _distanceToTarget + transform.up * _cameraHeight;
+        _camera.transform.position = _target.position - transform.forward * _distanceToTarget + new Vector3(0, _cameraHeight, 0);
 
     }
 
