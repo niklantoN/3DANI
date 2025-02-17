@@ -12,6 +12,7 @@ public class PlayerHandler : MonoBehaviour
     private Vector3 _direction;
     private float _velocity;
     private bool _isGrounded;
+    private bool _canDoubleJump;
 
     private LayerMask _groundLayer;
 
@@ -29,6 +30,11 @@ public class PlayerHandler : MonoBehaviour
     private void Update()
     {
         _isGrounded = _characterController.isGrounded;
+        
+        if (_isGrounded)
+        {
+            _canDoubleJump = true;
+        }
 
 
 
@@ -77,7 +83,13 @@ public class PlayerHandler : MonoBehaviour
     {
 
             if (!context.started) return;
-            if(!_isGrounded) return;
+            if (!_isGrounded && !_canDoubleJump) return;
+            if (!_isGrounded && _canDoubleJump)
+            {
+            _velocity = _jumpStrength * 0.75f;
+            _canDoubleJump = false;
+            return;
+            }
             _velocity += _jumpStrength;
     }
     public void Move(InputAction.CallbackContext context)

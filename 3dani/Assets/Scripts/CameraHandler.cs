@@ -24,6 +24,7 @@ public class CameraHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         _camera.transform.eulerAngles = new Vector3(
             _camera.transform.eulerAngles.x + _input.y * Time.deltaTime * _cameraSensivity,
             _camera.transform.eulerAngles.y + _input.x * Time.deltaTime * _cameraSensivity,
