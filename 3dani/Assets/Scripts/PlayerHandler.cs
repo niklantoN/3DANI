@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,9 +11,10 @@ public class PlayerHandler : MonoBehaviour
     public Vector2 input;
     private CharacterController _characterController;
     private Vector3 _direction;
-    private float _velocity;
+    public float velocity;
     private bool _isGrounded;
     private bool _canDoubleJump;
+    public bool _isStrafing;
 
     private LayerMask _groundLayer;
 
@@ -36,8 +38,6 @@ public class PlayerHandler : MonoBehaviour
             _canDoubleJump = true;
         }
 
-
-
         ApplyGravity();
         RotateCharacter();
         MoveCharacter();
@@ -49,13 +49,31 @@ public class PlayerHandler : MonoBehaviour
 
 
 
-
-    private void RotateCharacter()
+    public void Strafe(InputAction.CallbackContext context)
     {
+        if (context.started)
+        {
+            _isStrafing = true;
+        }
+
+        if (context.canceled)
+        {
+            _isStrafing = false;
+        }
+        return;
+    }
+    private void RotateCharacter()
+    {   
+        if(_isStrafing)
+        {
+            transform.rotation = Quaternion.Euler(0, _camera.eulerAngles.y, 0);
+        }
         if (input.sqrMagnitude == 0) return;
-        
+        if (!_isStrafing)
+        {
             var targetAngle = Mathf.Atan2(_direction.x, _direction.z) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, targetAngle + _camera.eulerAngles.y, 0);
+        }
         
     }
 
@@ -67,15 +85,15 @@ public class PlayerHandler : MonoBehaviour
 
     private void ApplyGravity()
     {
-        if (_isGrounded && _velocity < 0.0f)
+        if (_isGrounded && velocity < 0.0f)
         {
-            _velocity = -1;
+            velocity = -1;
         }
         else
         {
-            _velocity += _gravity * _gravityMultiplier * Time.deltaTime;
+            velocity += _gravity * _gravityMultiplier * Time.deltaTime;
         }
-        _direction.y = _velocity;
+        _direction.y = velocity;
     }
 
 
@@ -86,19 +104,15 @@ public class PlayerHandler : MonoBehaviour
             if (!_isGrounded && !_canDoubleJump) return;
             if (!_isGrounded && _canDoubleJump)
             {
-            _velocity = _jumpStrength * 0.75f;
+            velocity = _jumpStrength * 0.75f;
             _canDoubleJump = false;
             return;
             }
-            _velocity += _jumpStrength;
+            velocity += _jumpStrength;
     }
     public void Move(InputAction.CallbackContext context)
     {
         input = context.ReadValue<Vector2>();
-        if (input.magnitude > 1)
-        {
-            input.Normalize();
-        }
         _direction = new Vector3(input.x, 0, input.y);
     }
 
