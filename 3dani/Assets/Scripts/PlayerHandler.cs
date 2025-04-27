@@ -16,6 +16,14 @@ public class PlayerHandler : MonoBehaviour
     private bool _canDoubleJump;
     public bool _isStrafing;
 
+    public float totalTime = 0.3f;
+    public float moveDuration = 0.1f;
+    public float dashDistance;
+
+    private float timer = 0f;
+    private bool isDashing = false;
+    private Vector3 dashDirection;
+
     private LayerMask _groundLayer;
 
     [SerializeField] private float _maxDistance;
@@ -36,6 +44,21 @@ public class PlayerHandler : MonoBehaviour
         if (_isGrounded)
         {
             _canDoubleJump = true;
+        }
+
+        if (isDashing)
+        {
+            timer += Time.deltaTime;
+
+            if (timer <= moveDuration)
+            {
+                _characterController.Move(transform.forward * 10 * dashDistance * Time.deltaTime);
+            }
+
+            if (timer >= totalTime)
+            {
+                isDashing = false;
+            }
         }
 
         ApplyGravity();
@@ -63,8 +86,9 @@ public class PlayerHandler : MonoBehaviour
         return;
     }
     private void RotateCharacter()
-    {   
-        if(_isStrafing)
+    {
+        if (isDashing) return;
+        if (_isStrafing)
         {
             transform.rotation = Quaternion.Euler(0, _camera.eulerAngles.y, 0);
         }
@@ -79,6 +103,7 @@ public class PlayerHandler : MonoBehaviour
 
     private void MoveCharacter()
     {
+        if (isDashing) return;
         Vector3 movementInCameraSpace = ConvertToCameraSpace(_direction);
         _characterController.Move(movementInCameraSpace * Time.deltaTime * _movementSpeed);
     }
@@ -101,6 +126,7 @@ public class PlayerHandler : MonoBehaviour
     {
 
             if (!context.started) return;
+            if (isDashing) return;
             if (!_isGrounded && !_canDoubleJump) return;
             if (!_isGrounded && _canDoubleJump)
             {
@@ -122,6 +148,21 @@ public class PlayerHandler : MonoBehaviour
 
         Vector3 rotatedVector = rotation * direction;
         return rotatedVector;
+    }
+
+    public void Melee(InputAction.CallbackContext context)
+    {
+        if(_isGrounded)
+        {
+            StartDash();
+        }
+    }
+
+    void StartDash()
+    {
+        isDashing = true;
+        timer = 0f;
+        dashDirection = _direction; // Moves in the forward direction of the object
     }
 
 }
